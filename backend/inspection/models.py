@@ -13,3 +13,25 @@ class Inspection(models.Model):
 
     class Meta:
         ordering = ["-id"]
+
+    @property
+    def is_archived(self) -> bool:
+        record = getattr(self, "archive_record", None)
+        return record is not None
+
+
+class ArchiveRecord(models.Model):
+    """封存册：一条巡检记录被封存后，在此留档操作者、时刻与原因。"""
+
+    inspection = models.OneToOneField(
+        Inspection,
+        on_delete=models.CASCADE,
+        related_name="archive_record",
+        verbose_name="巡检记录",
+    )
+    reason = models.CharField("封存原因", max_length=200)
+    archived_by = models.CharField("封存操作者", max_length=64)
+    archived_at = models.DateTimeField("封存时刻", auto_now_add=True)
+
+    class Meta:
+        ordering = ["-archived_at"]

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block body %}
 <h1>巡检记录</h1>
+<p>默认只显示未封存记录；已封存的合格实测请到<a href="{% url 'archive_book' %}">封存册</a>查阅。</p>
 <table>
   <thead><tr><th>编号</th><th>实测光强</th><th>结论</th><th>说明</th><th></th></tr></thead>
   <tbody>

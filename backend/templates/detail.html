@@ -4,5 +4,24 @@
 <p class="{% if row.verdict == '合格' %}ok{% else %}bad{% endif %}">{{ row.verdict }} · {{ row.note }}</p>
 <p>实测光强 {{ row.measured_cd }}，要求 {{ row.required_cd }}，方位偏差 {{ row.bearing_error_deg }} 度</p>
 <p>登记人 {{ row.created_by }}</p>
-<p><a href="{% url 'list' %}">返回列表</a></p>
+
+{% if archive_error %}<p class="err">不能封存：{{ archive_error }}</p>{% endif %}
+
+{% if row.archive_record %}
+  <div class="archived">
+    <p><strong>该记录已封存</strong>，亮度与偏角禁止再改正。</p>
+    <p>封存原因：{{ row.archive_record.reason }}</p>
+    <p>封存操作者：{{ row.archive_record.archived_by }}　封存时刻：{{ row.archive_record.archived_at|date:"Y-m-d H:i:s" }}</p>
+  </div>
+{% elif can_write %}
+  <p><a href="{% url 'correct' row.pk %}">改正亮度 / 偏角</a></p>
+  <form class="card" method="post" action="{% url 'archive' row.pk %}">
+    {% csrf_token %}
+    <label>封存原因（必填）</label>
+    <input name="reason" maxlength="200" />
+    <button type="submit">封存</button>
+  </form>
+{% endif %}
+
+<p><a href="{% url 'list' %}">返回列表</a>　<a href="{% url 'archive_book' %}">去封存册</a></p>
 {% endblock %}

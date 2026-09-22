@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>封存册</h1>
+<p>此处只收录已封存的合格实测；总表默认不再显示这些行。</p>
+<table>
+  <thead><tr><th>编号</th><th>结论</th><th>封存原因</th><th>封存操作者</th><th>封存时刻</th><th></th></tr></thead>
+  <tbody>
+  {% for rec in records %}
+    <tr>
+      <td>{{ rec.inspection.aid_code }}</td>
+      <td class="ok">{{ rec.inspection.verdict }}</td>
+      <td>{{ rec.reason }}</td>
+      <td>{{ rec.archived_by }}</td>
+      <td>{{ rec.archived_at|date:"Y-m-d H:i:s" }}</td>
+      <td><a href="{% url 'detail' rec.inspection.pk %}">详情</a></td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="6">还没有封存记录</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
