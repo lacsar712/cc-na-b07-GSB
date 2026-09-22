@@ -1,8 +1,38 @@
 {% extends "base.html" %}
 {% block body %}
 <h1>{{ row.aid_code }}</h1>
+{% if error %}<p class="err">{{ error }}</p>{% endif %}
 <p class="{% if row.verdict == '合格' %}ok{% else %}bad{% endif %}">{{ row.verdict }} · {{ row.note }}</p>
 <p>实测光强 {{ row.measured_cd }}，要求 {{ row.required_cd }}，方位偏差 {{ row.bearing_error_deg }} 度</p>
 <p>登记人 {{ row.created_by }}</p>
-<p><a href="{% url 'list' %}">返回列表</a></p>
+
+{% if row.archived %}
+  <p class="ok">该记录已封存，禁止改正亮度或偏角。</p>
+  <p>封存原因：{{ row.archive_reason }}<br/>
+     封存人：{{ row.archived_by }}　封存时刻：{{ row.archived_at|date:"Y-m-d H:i:s" }}</p>
+{% elif can_write %}
+  <form class="card" method="post" action="{% url 'correct' row.pk %}">
+    {% csrf_token %}
+    <label>改正后实测光强（坎德拉）</label>
+    <input name="measured_cd" type="number" step="0.1" value="{{ row.measured_cd }}" />
+    <label>改正后方位偏差（度）</label>
+    <input name="bearing_error_deg" type="number" step="0.1" value="{{ row.bearing_error_deg }}" />
+    <button type="submit">提交改正</button>
+  </form>
+  <form class="card" method="post" action="{% url 'archive' row.pk %}">
+    {% csrf_token %}
+    <label>封存原因（必填）</label>
+    <input name="archive_reason" />
+    {% if row.verdict != '合格' %}
+      <p class="err">不合格记录不能封存：仅合格实测可入库封存。</p>
+      <button type="submit" disabled>封存</button>
+    {% else %}
+      <button type="submit">封存</button>
+    {% endif %}
+  </form>
+{% else %}
+  <p>只读账号：仅可查看总表与封存册。</p>
+{% endif %}
+
+<p><a href="{% url 'list' %}">返回列表</a>　<a href="{% url 'archive_book' %}">前往封存册</a></p>
 {% endblock %}

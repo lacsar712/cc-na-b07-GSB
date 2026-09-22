@@ -11,5 +11,10 @@ class Inspection(models.Model):
     created_by = models.CharField("登记人", max_length=64)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    archived = models.BooleanField("已封存", default=False)
+    archive_reason = models.CharField("封存原因", max_length=200, blank=True, default="")
+    archived_by = models.CharField("封存人", max_length=64, blank=True, default="")
+    archived_at = models.DateTimeField("封存时刻", null=True, blank=True)
+
     class Meta:
         ordering = ["-id"]
